@@ -1,34 +1,41 @@
-name: Build and Push to ECR
+name: Build and Push to ECR Public
 
+# Trigger on push to main or manual run
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-2
+          aws-region: us-east-1  # Safe default for Public ECR
 
-      - name: Login to Amazon ECR
+      # Step 3: Login to Amazon ECR Public
+      - name: Login to Amazon ECR Public
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
-      - name: Build, tag, and push image to Amazon ECR
+      # Step 4: Build, tag, and push Docker image
+      - name: Build, tag, and push image to ECR Public
         run: |
           IMAGE_URI=public.ecr.aws/n5r2a7x5/maratec/mediplus:${{ github.run_number }}
           echo "Building image: $IMAGE_URI"
           docker build -t $IMAGE_URI .
           echo "Pushing image to ECR..."
           docker push $IMAGE_URI
+
