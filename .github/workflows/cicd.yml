@@ -1,6 +1,5 @@
 name: Build and Push to ECR Public
 
-# Trigger on push to main or manual run
 on:
   push:
     branches:
@@ -12,30 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # ✅ Step 1: Checkout your code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Configure AWS credentials
+      # ✅ Step 2: Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Safe default for Public ECR
+          aws-region: us-east-1
 
-      # Step 3: Login to Amazon ECR Public
+      # ✅ Step 3: Login to Amazon ECR Public
       - name: Login to Amazon ECR Public
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
-      # Step 4: Build, tag, and push Docker image
+      # ✅ Step 4: Build, tag, and push Docker image
       - name: Build, tag, and push image to ECR Public
         run: |
+          # Define image URIs (no leading slash!)
           IMAGE_URI=public.ecr.aws/n5r2a7x5/maratec/mediplus:${{ github.run_number }}
-          echo "Building image: $IMAGE_URI"
-          docker build -t $IMAGE_URI .
-          echo "Pushing image to ECR..."
-          docker push $IMAGE_URI
+          LATEST_URI=public.ecr.aws/n5r2a7x5/maratec/mediplus:latest
 
+          echo "Building Docker image..."
+          docker build -t $IMAGE_URI .
+
+          echo "Tagging image as latest..."
+          docker tag $IMAGE_URI $LATEST_URI
+
+          echo "Pushing image to ECR Public..."
+          docker push $IMAGE_URI
+          docker push $LATEST_URI
+
+          echo "✅ Successfully pushed versioned and latest tags to ECR!"
