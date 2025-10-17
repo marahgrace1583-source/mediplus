@@ -29,21 +29,22 @@ jobs:
         with:
           registry-type: public
 
-      # ✅ Step 4: Build, tag, and push Docker image
+      # ✅ Step 4: Build, tag, and push Docker image to ECR Public
       - name: Build, tag, and push image to ECR Public
         run: |
-          # Define image URIs (no leading slash!)
+          # Correct image URI (no leading slash!)
           IMAGE_URI=public.ecr.aws/n5r2a7x5/maratec/mediplus:${{ github.run_number }}
           LATEST_URI=public.ecr.aws/n5r2a7x5/maratec/mediplus:latest
 
-          echo "Building Docker image..."
+          echo " Building Docker image..."
           docker build -t $IMAGE_URI .
 
           echo "Tagging image as latest..."
           docker tag $IMAGE_URI $LATEST_URI
 
-          echo "Pushing image to ECR Public..."
+          echo " Pushing image to Amazon ECR Public..."
           docker push $IMAGE_URI
           docker push $LATEST_URI
 
-          echo "✅ Successfully pushed versioned and latest tags to ECR!"
+          echo " Successfully pushed both versioned and latest tags!"
+
