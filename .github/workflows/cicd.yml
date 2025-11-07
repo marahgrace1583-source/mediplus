@@ -21,13 +21,18 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ${{ secrets.AWS_REGION }}
 
-      # ✅ Step 3: Login to Amazon ECR Public
+      # ✅ Step 3: Create ECR Public repository if it doesn't exist
+      - name: Create ECR Public repository
+        run: |
+          aws ecr-public create-repository --repository-name mediplus --region us-east-1 || echo "Repository already exists"
+
+      # ✅ Step 4: Login to Amazon ECR Public
       - name: Login to Amazon ECR Public
         run: |
           aws ecr-public get-login-password --region us-east-1 | \
           docker login --username AWS --password-stdin public.ecr.aws/n5r2a7x5
 
-      # ✅ Step 4: Build and Push Docker image to ECR Public
+      # ✅ Step 5: Build and Push Docker image to ECR Public
       - name: Build and Push Docker image
         run: |
           IMAGE_URI=public.ecr.aws/n5r2a7x5/mediplus:${{ github.run_number }}
