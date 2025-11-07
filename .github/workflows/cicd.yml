@@ -42,5 +42,5 @@ jobs:
 
       # ✅ Step 5: Display success message
       - name: Deployment Summary
-        run: echo "✅ Successfully pushed image to $IMAGE_URI"
+        run: echo "Successfully pushed image to $IMAGE_URI"
 
